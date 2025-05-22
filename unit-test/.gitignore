@@ -1,0 +1,10 @@
+
+.wake
+.env
+pytypes
+__pycache__/
+*.py[cod]
+.hypothesis/
+wake-coverage.cov
+.mypy_cache/
+.pytest_cache/

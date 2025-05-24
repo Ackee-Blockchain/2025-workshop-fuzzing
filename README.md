@@ -14,6 +14,8 @@ pip install eth-wake
 wake up
 ```
 
+Desceibe each directory and especially config file.
+
 ### VSCode Exstension
 
 How to see detector result

@@ -152,12 +152,10 @@ def test_access_timestamp():
     prev_block = chain.blocks["latest"].number
     prev_timestamp = chain.blocks["latest"].timestamp
 
-
     ## You can access timestamp of the block.
     print("latest block timestamp", chain.blocks["latest"].timestamp)
 
-    ## You can manipulate the timestamp.
-
+    ## You can manipulate the timestamp by mining block
     chain.mine(lambda x: x + 10) # increase 10 seconds with mining blocks.
     print("latest block number", chain.blocks["latest"].number)
     print("latest block timestamp", chain.blocks["latest"].timestamp)
@@ -186,3 +184,4 @@ def test_transaction_with_bytes():
 
     assert token.getBalance(chain.accounts[1].address) == 100
     assert token.getBalance(chain.accounts[0].address) == 900
+

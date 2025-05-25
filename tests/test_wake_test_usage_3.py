@@ -8,7 +8,7 @@ from pytypes.contracts.EIP712Example import EIP712Example
 
 
 @chain.connect()
-def test_permit_token():
+def test_eip712_example():
 
     alice = chain.accounts[0]
     bob = chain.accounts[1]

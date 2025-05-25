@@ -2,14 +2,19 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+
+import "wake/console.sol";
+
+
+// possibly adding pause
+// possibly adding withdrawal delay
 
 /**
  * @title SingleTokenVault
  * @dev A vault contract that manages deposits and withdrawals for a single ERC20 token
  */
-contract SingleTokenVault is Pausable, Ownable {
+contract SingleTokenVault is Ownable {
     // Custom Errors
     error InvalidToken();
     error InvalidDepositLimits();
@@ -17,7 +22,6 @@ contract SingleTokenVault is Pausable, Ownable {
     error AboveMaxDeposit();
     error TransferFailed();
     error InsufficientBalance();
-    error WithdrawalTooSoon(uint256 timeLeft);
     error ZeroAmount();
 
     IERC20 public immutable token;
@@ -29,22 +33,16 @@ contract SingleTokenVault is Pausable, Ownable {
     uint256 public minDepositAmount;
     uint256 public totalDeposits;
 
-    // Time lock for withdrawals (in seconds)
-    uint256 public withdrawalDelay;
-    mapping(address => uint256) public lastWithdrawalTime;
-
     // Events
     event Deposited(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount);
     event DepositLimitsUpdated(uint256 minAmount, uint256 maxAmount);
-    event WithdrawalDelayUpdated(uint256 newDelay);
     event EmergencyWithdrawn(address indexed token, uint256 amount);
 
     constructor(
         address _token,
         uint256 _minDepositAmount,
-        uint256 _maxDepositAmount,
-        uint256 _withdrawalDelay
+        uint256 _maxDepositAmount
     ) Ownable(msg.sender) {
         if (_token == address(0)) revert InvalidToken();
         if (_maxDepositAmount <= _minDepositAmount) revert InvalidDepositLimits();
@@ -52,25 +50,28 @@ contract SingleTokenVault is Pausable, Ownable {
         token = IERC20(_token);
         minDepositAmount = _minDepositAmount;
         maxDepositAmount = _maxDepositAmount;
-        withdrawalDelay = _withdrawalDelay;
     }
 
     /**
      * @dev Deposits tokens into the vault
      * @param amount The amount of tokens to deposit
      */
-    function deposit(uint256 amount) external whenNotPaused {
+    function deposit(uint256 amount) external {
         if (amount == 0) revert ZeroAmount();
+        console.log("amount", amount);
+        console.log("minDepositAmount", minDepositAmount);
+        console.log("maxDepositAmount", maxDepositAmount);
         if (amount < minDepositAmount) revert BelowMinDeposit();
         if (amount > maxDepositAmount) revert AboveMaxDeposit();
+        console.log("amount is within limits");
 
         bool success = token.transferFrom(msg.sender, address(this), amount);
+        console.log("transferFrom result: ", success);
         if (!success) revert TransferFailed();
 
         _balances[msg.sender] += amount;
         totalDeposits += amount;
 
-        lastWithdrawalTime[msg.sender] = block.timestamp;
         emit Deposited(msg.sender, amount);
     }
 
@@ -78,12 +79,9 @@ contract SingleTokenVault is Pausable, Ownable {
      * @dev Withdraws tokens from the vault
      * @param amount The amount of tokens to withdraw
      */
-    function withdraw(uint256 amount) external whenNotPaused {
+    function withdraw(uint256 amount) external {
         if (amount == 0) revert ZeroAmount();
         if (_balances[msg.sender] < amount) revert InsufficientBalance();
-
-        uint256 timeLeft = _getTimeUntilWithdrawal(msg.sender);
-        if (timeLeft > 0) revert WithdrawalTooSoon(timeLeft);
 
         _balances[msg.sender] -= amount;
         totalDeposits -= amount;
@@ -91,7 +89,6 @@ contract SingleTokenVault is Pausable, Ownable {
         bool success = token.transfer(msg.sender, amount);
         if (!success) revert TransferFailed();
 
-        lastWithdrawalTime[msg.sender] = block.timestamp;
         emit Withdrawn(msg.sender, amount);
     }
 
@@ -117,25 +114,6 @@ contract SingleTokenVault is Pausable, Ownable {
     }
 
     /**
-     * @dev Returns time until next withdrawal is allowed
-     * @param user The user address
-     */
-    function timeUntilWithdrawal(address user) external view returns (uint256) {
-        return _getTimeUntilWithdrawal(user);
-    }
-
-    /**
-     * @dev Internal function to calculate time until withdrawal
-     */
-    function _getTimeUntilWithdrawal(address user) internal view returns (uint256) {
-        uint256 nextWithdrawalTime = lastWithdrawalTime[user] + withdrawalDelay;
-        if (block.timestamp >= nextWithdrawalTime) {
-            return 0;
-        }
-        return nextWithdrawalTime - block.timestamp;
-    }
-
-    /**
      * @dev Updates deposit limits (only owner)
      */
     function setDepositLimits(uint256 _minAmount, uint256 _maxAmount) external onlyOwner {
@@ -145,25 +123,4 @@ contract SingleTokenVault is Pausable, Ownable {
         emit DepositLimitsUpdated(_minAmount, _maxAmount);
     }
 
-    /**
-     * @dev Updates withdrawal delay (only owner)
-     */
-    function setWithdrawalDelay(uint256 _delay) external onlyOwner {
-        withdrawalDelay = _delay;
-        emit WithdrawalDelayUpdated(_delay);
-    }
-
-    /**
-     * @dev Pauses the contract
-     */
-    function pause() external onlyOwner {
-        _pause();
-    }
-
-    /**
-     * @dev Unpauses the contract
-     */
-    function unpause() external onlyOwner {
-        _unpause();
-    }
 }

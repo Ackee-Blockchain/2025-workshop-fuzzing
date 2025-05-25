@@ -1,3 +1,5 @@
 {
-    "wake.compiler.solc.remappings": []
+    "wake.compiler.solc.remappings": [
+        "@openzeppelin/=node_modules/@openzeppelin/"
+    ]
 }

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "wake/console.sol";
+
 contract Token {
     address public immutable owner;
     mapping(address => uint256) public tokenBalance;
@@ -23,6 +25,9 @@ contract Token {
     }
 
     function mintTokens(address recipient, uint256 amount) external onlyOwner {
+        console.log("mintTokens", recipient, amount);
+        console.log("current timestamp", block.timestamp);
+        console.log("previous token balance", tokenBalance[recipient]);
         tokenBalance[recipient] += amount;
         emit TokensMinted(recipient, amount);
     }

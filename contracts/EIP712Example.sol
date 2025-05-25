@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import "wake/console.sol";
+
 /**
  * @title EIP712Example
  * @dev Simple voting contract using EIP712 signatures
@@ -87,6 +89,8 @@ contract EIP712Example {
                 structHash
             )
         );
+        console.log("structHash");
+        console.logBytes32(structHash);
 
         // Verify signature
         address signer = ecrecover(hash, v, r, s);

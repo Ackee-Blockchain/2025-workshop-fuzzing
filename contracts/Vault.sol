@@ -64,6 +64,7 @@ contract SingleTokenVault is Ownable {
         if (amount < minDepositAmount) revert BelowMinDeposit();
         if (amount > maxDepositAmount) revert AboveMaxDeposit();
         console.log("amount is within limits");
+        console.logBytes32(bytes32(0))
 
         bool success = token.transferFrom(msg.sender, address(this), amount);
         console.log("transferFrom result: ", success);

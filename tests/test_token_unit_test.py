@@ -23,7 +23,38 @@ def test_default():
 
 
 @chain.connect()
-def test_token_basic_operations():
+def test_token_mint_tokens():
+    print("") # just for readability
+
+    # Get some accounts to work with
+    owner = chain.accounts[0]
+    alice = chain.accounts[1]
+
+    # Deploy the contract
+    token = Token.deploy(from_=owner)
+
+    assert token.getBalance(alice.address) == 0, "Alice should have 0 tokens"
+
+    # Test 2: Create tokens for Alice
+    tx = token.mintTokens(alice.address, 1000, from_=owner)
+    print(tx.call_trace)
+    print(tx.events)
+
+    events: list[Token.TokensMinted] = []
+    for e in tx.events:
+        if isinstance(e, Token.TokensMinted):
+            events.append(e)
+
+    assert len(events) == 1, "There should be 1 TokensMinted event"
+    assert events[0].to == alice.address, "Recipient should be Alice"
+    assert events[0].amount == 1000, "Amount should be 1000"
+
+    assert token.getBalance(alice.address) == 1000, "Alice should have 1000 tokens"
+
+    print("test_token_mint_tokens done")
+
+@chain.connect()
+def test_token_transfer():
 
     # Get some accounts to work with
     owner = chain.accounts[0]
@@ -33,16 +64,20 @@ def test_token_basic_operations():
     # Deploy the contract
     token = Token.deploy(from_=owner)
 
-    # Test 1: Check if owner is set correctly
-    assert token.owner() == owner.address, "Owner should be set to deployer"
-
-    # Test 2: Create tokens for Alice
-    tx = token.mintTokens(alice.address, 1000, from_=owner)
-    print(tx.call_trace)
-    print(tx.events)
+    token.mintTokens(alice.address, 1000, from_=owner)
     assert token.getBalance(alice.address) == 1000, "Alice should have 1000 tokens"
 
-    token.transfer(bob.address, 500, from_=alice.address)
+    tx = token.transfer(bob.address, 500, from_=alice.address)
+
+    events: list[Token.Transfer] = []
+    for e in tx.events:
+        if isinstance(e, Token.Transfer):
+            events.append(e)
+
+    assert len(events) == 1, "There should be 1 Transfer event"
+    assert events[0].from_ == alice.address, "Sender should be Alice"
+    assert events[0].to == bob.address, "Recipient should be Bob"
+    assert events[0].value == 500, "Amount should be 500"
 
     # Check balances after transfer
     assert token.getBalance(alice.address) == 500, "Alice should have 500 tokens left"
@@ -50,23 +85,20 @@ def test_token_basic_operations():
 
     print("test_token_basic_operations done")
 
+@chain.connect()
+def test_token_transfer_not_enough_tokens():
 
-# @chain.connect()
-# def test_vault_basic_operations():
-#     token = MockERC20.deploy("MockERC20", "MCK")
-#     vault = SingleTokenVault.deploy(token, 1000, 1000000)
+    # Get some accounts to work with
+    owner = chain.accounts[0]
+    alice = chain.accounts[1]
+    bob = chain.accounts[2]
 
-#     user = chain.accounts[0]
-#     mint_erc20(token, user, 1000)
-#     token.approve(vault, 1000, from_=user)
-#     tx = vault.deposit(1000, from_=user)
-#     print("")
-#     print(tx.call_trace)
-#     print(tx.events)
+    # Deploy the contract
+    token = Token.deploy(from_=owner)
 
-#     assert vault.balanceOf(user) == 1000
+    assert token.getBalance(alice.address) == 0, "Alice should have 0 tokens"
 
+    with must_revert(Token.NotEnoughTokens):
+        token.transfer(bob.address, 500, from_=alice.address)
 
-
-
-
+    print("test_token_basic_operations done")

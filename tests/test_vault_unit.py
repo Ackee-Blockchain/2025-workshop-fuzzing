@@ -20,8 +20,8 @@ def test_vault_basic_operations():
     token.approve(vault, 1000, from_=user)
     tx = vault.deposit(1000, from_=user)
     print("")
-    print(tx.call_trace)
-    print(tx.events)
+    print(tx.call_trace) # call trace is useful for debugging
+    print(tx.events) # events is useful for testing
 
     assert vault.balanceOf(user) == 1000
 

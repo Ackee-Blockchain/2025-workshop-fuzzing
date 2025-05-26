@@ -1,4 +1,4 @@
-# Art of Manually guided fuzzing
+# The art of Manually guided fuzzing
 
 ## Usage of Wake for Testing
 
@@ -8,48 +8,112 @@
 pip install eth-wake
 ```
 
-###
+Check installation by `$ wake --version`. It should show your wake environment.
 
-### Initialize wake project
+### Initialize the project
 
 ```bash
 wake up
 ```
 
-Desceibe each directory and especially config file.
+This will initialize your wake environment.
+
+#### `wake.toml`
+
+`/wake.toml` is Environemnt file.
+
+You can change testing environment. Anvil, Revm or others.
+
+```toml
+[testing]
+cmd = "anvil"
+```
+
+Compiler setting. Generally `wake up` automatically apply remappings to this config.
+
+```toml
+[compiler.solc]
+exclude_paths = ["script", ".venv", "venv", "node_modules", "lib", "test"]
+include_paths = ["node_modules"]
+remappings = []
+```
+
+Details of compiler setting is [compiler setting](https://ackee.xyz/wake/docs/latest/compilation/#include-paths).
 
 ### VSCode Exstension
 
-How to see detector result
+Find `Solidity (Wake)` from market place, and install it.
+It supports Deploy and Interact of on-chain contract.
+And it shows static analysis results.
 
 ### Usage of detector and printer from wake
 
-Detector or printer result stored in `.wake/`
+VScode extension shows detection result on your code base.
+
+- `$ wake detect` to see available detectors.
+
+- `$ wake print` to see available printers.
+
+The printer result stored in `.wake/`.
 
 ## Testing with Wake
 
+We'll start by examining two key files:
+
+- [SingleTokenVault](contracts/Vault.sol) - The contract we're testing
+- [Vault Unit Test](tests/test_vault_unit.py) - A test focusing on the `deposit` function
+
+### 🚀 Running the Test
+
+Execute the test using this command:
+
 ```bash
-wake test tests/test_default.py
+wake test tests/test_vault_unit.py
 ```
 
-### Usefull functions during test
+### 📊 What to Expect
 
-#### Call trace
+After running the test, you'll see:
+
+- Detailed call traces
+- Test execution results
+- Function interactions
+
+### Call trace
+
+In python test code
 
 ```python
 print(tx.call_trace)
 ```
 
-#### Events
+### Events
+
+In python test code
 
 ```python
 print(tx.events)
 ```
 
-#### Console log
+### Debugging mode
+
+This mode enable interact when exception happen. You can call other function in interactive mode.
+
+```bash
+wake test tests/test_vault_unit.py -d
+```
+
+### Console logs
+
+The console log messages shows in call trace.
 
 ```sol
 import "wake/console.sol";
+
+~
+console.sol(variableName);
+~
+console.logBytes32(bytes32(0));
 ```
 
 ```bash
@@ -61,63 +125,117 @@ print(tx.call_trace)
 print(tx.console_log)
 ```
 
-## Unit test with Wake
+## Wake Testing APIs
 
-Show how wake is flexble to apply idea to the code and make it run attack scinario
+### Basic Wake Testing Examples
 
-and creating proof of concepts.
+Check out [Wake Usage Tests](tests/test_wake_usage.py) for examples of Wake's core testing features.
 
-### Transaction
+### 🎯 Running Specific Tests
 
-### Event check
+To run a single test function instead of the entire file e.g. `test_account` unit test:
 
-event check with those arguments.
+```bash
+wake test tests/test_wake_usage.py::test_account
+```
 
-### Chains
+### 📚 What You'll Learn
 
-Cross chain test
+Each test unit demonstrates:
+
+- Core Wake testing features
+- Common testing patterns
+- Best practices for smart contract testing
+
+### Signing in `wake test`
+
+Examine [wake Signing Usage Tests](tests/test_wake_usage_signing.py) for signing example including EIP-712 feature.
+
+### 📝 Task: Write Your Own Wake Unit Test
+
+1. Get idea from the example test in [Token Unit Test(tests/test_token_unit_test.py)](tests/test_token_unit_test.py)
+2. Examine the [SingleTokenVault](contracts/Vault.sol) contract
+3. Implement additional test cases in [test_vault_unit.py](tests/test_vault_unit.py):
+   - [ ] Test Event emission in deposit functionality
+   - [ ] Test ERC20 Token balance of before and after by using `token.balanceOf()`
+   - [ ] Test withdrawal functionality
+   - [ ] Test deposit limits
+   - [ ] Add your own test scenarios!
 
 ## Fuzz test with wake
 
-Fuzzing in wake
+Finally, reached main part!!
 
-### Manully guided Fuzzing work flow
+### Manully guided Fuzzing
 
-What is manually guided fuzzing
+What is manually guided fuzzing, look at the presentation
 
-#### MGF tips
+### Initial Setup
+
+```python
+VaultFuzz.run(sequences_count=1, flows_count=100)
+```
+
+### 🔄 Execution Cycle
+
+```mermaid
+graph TD
+    A[Start] --> B[Run pre_sequence function]
+    B --> C[Randomly chosen one @flow function]
+    C --> D[Run All @invariant functions]
+    D --> E{Completed flows_count?}
+    E -->|No| C
+    E -->|Yes| F{Completed sequences_count?}
+    F -->|No| B
+    F -->|Yes| G[End]
+```
+
+### Flow
+
+- Sequence of actions or transactions
+- defined by the tester
+- Tester writes code to generate random arguments of the transaction call
+
+**Key Point:**
+
+- One transaction call in one flow function
+- Assert all events and behavior in the test
+
+### Invariant
+
+- Checks that all variables in the contract are the same as the variables in the Python test
+- Run all invariant functions after every flow
+
+## MGF pro tips
 
 How to write code and testing tips
 
-#### usage of Seed
+### Seed of Fuzzing
+
+When you reached exception, but generally it does not show exact reason.
 
 ```bash
 wake test tests/test_fuzz.py -S 0abcdefg...
 ```
 
-#### Multi process testing
+### Multi process testing
 
 ```bash
 wake test tests/test_fuzz.py -P 4
 ```
 
-#### Debugging mode
-
-```bash
-wake test tests/test_fuzz.py -d
-```
-
-#### Breakpoint
+### Breakpoint
 
 ```python
 breakpoint()
 ```
 
-#### Crash log
+### Crash log
 
-Crash log exist at `.wake/`
+Crash log exist at `.wake/logs/crashes`.
+This file contains internal random state of beginning of test.
 
-#### Shrinking
+### Shrinking
 
 Running shrinking. And it will show
 
@@ -125,16 +243,26 @@ Running shrinking. And it will show
 wake test tests/test_fuzz.py -SH
 ```
 
-Run shrank test.
+Run shrank test by
 
 ```bash
 wake test tests/test_fuzz.py -SR
 ```
 
-### Fuzzing with example 1
+### 📝 Task: Write Your Own Manually Guided Fuzzing
 
-- prime number decide function or square root function to describe differential testing.
+1. Get idea from the fuzz test template [Fuzz Template(tests/fuzz_template.py)](tests/fuzz_template.py)
+2. Examine the [SingleTokenVault](contracts/Vault.sol) contract
+3. Implement fuzz test in [Vault Fuzz(tests/test_vault_fuzz.py)](tests/test_vault_fuzz.py):
+   1. [ ] Create `pre_sequence` function and define contracts.
+   2. [ ] Create `@flow` function for `SingleTokenVault.deposit` function.
+   3. [ ] Add limit data in the python test that store limits value.
+   4. [ ] Add balance data in the python test that store deposited value.
+   5. [ ] Create `@invaraint` function for checking above balance.
+   6. [ ] Create `@flow` function for `SingleTokenVault.withdraw` function.
+   7. [ ] Add ERC20 token balance data in python test
+   8. [ ] Create `@invaraint` function for checking above balance.
+   9. [ ] Create `@flow` for all state changing functions.
+   10. [ ] Add your own flow or invariant with your imagination!
 
-### Fuzzing with example 2
-
-- Real testing example
+> Solution is [Vault Fuzz Solution(tests/test_vault_fuzz_solution.py)](tests/test_vault_fuzz_solution.py)

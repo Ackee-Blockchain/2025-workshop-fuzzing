@@ -1,6 +1,6 @@
 # Install Wake on Windows
 
-We will install wake and anvil for testing.
+We will install Wake and Anvil for testing.
 
 ## Installing Wake
 
@@ -20,7 +20,7 @@ pip install eth-wake
 
 The installation may fail and ask you to install the C++ build tool.
 
-Download the C++ build tool from suggested url(microsoft) and run the installation tool.
+Download the C++ build tool from the suggested URL (Microsoft) and run the installation tool.
 
 When installing the build tool, do not forget to select `Desktop development with C++`.
 
@@ -42,7 +42,7 @@ Close and open PowerShell again and run:
 wake
 ```
 
-This should show the usage of Wake
+This should show the usage of Wake.
 
 ## Installing Anvil
 
@@ -56,7 +56,10 @@ Run:
 curl -L https://foundry.paradigm.xyz | bash
 ```
 
+Check that it runs successfully.
 Close Git Bash.
+
+Add the environment variable to PATH: `C:\Users\{username}\.foundry\bin`
 
 Open Git Bash again the same way and run:
 
@@ -64,6 +67,19 @@ Open Git Bash again the same way and run:
 foundryup
 ```
 
-Add the environment variable path: `C:\Users\{username}\.foundry\bin`
-
+Check that it runs successfully.
 Close PowerShell.
+
+Finally, run:
+
+```bash
+wake up
+```
+
+and
+
+```bash
+wake test tests/test_vault_unit.py
+```
+
+This should show a nice call trace. ✨

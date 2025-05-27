@@ -8,7 +8,21 @@
 pip install eth-wake
 ```
 
-Check installation by `$ wake --version`. It should show your wake environment.
+Check installation by `$ wake`. It should show wake Usage.
+
+Installing foundry to use anvil environment for testing.
+
+Run them.
+
+```bash
+curl -L https://foundry.paradigm.xyz | bash
+```
+
+```bash
+foundryup
+```
+
+Windows Users: see [Windows Installation Guide](WINDOWS_INSTALLATION.md)
 
 ### Initialize the project
 
@@ -17,6 +31,14 @@ wake up
 ```
 
 This will initialize your wake environment.
+
+LETS RUN EXAMPLE TEST!!!!!!
+
+```bash
+wake test tests/test_vault_unit.py
+```
+
+This should show nice call trace.
 
 #### `wake.toml`
 

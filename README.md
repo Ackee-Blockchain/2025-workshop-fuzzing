@@ -1,8 +1,6 @@
 # The art of Manually guided fuzzing
 
-## Usage of Wake for Testing
-
-### Installation of wake
+## 📦 Installation of Wake
 
 ```bash
 pip install eth-wake
@@ -24,6 +22,10 @@ foundryup
 
 Windows Users: see [Windows Installation Guide](WINDOWS_INSTALLATION.md)
 
+![horizontal splitter](https://github.com/Ackee-Blockchain/wake-detect-action/assets/56036748/ec488c85-2f7f-4433-ae58-3d50698a47de)
+
+## ⚙️ Usage of Wake for Testing
+
 ### Initialize the project
 
 ```bash
@@ -32,15 +34,15 @@ wake up
 
 This will initialize your wake environment.
 
-LETS RUN EXAMPLE TEST!!!!!!
+### 🚀 LETS RUN EXAMPLE TEST! 🎉
 
 ```bash
 wake test tests/test_vault_unit.py
 ```
 
-This should show nice call trace.
+This should show nice call trace. ✨
 
-#### `wake.toml`
+### Config file: `wake.toml`
 
 `/wake.toml` is Environemnt file.
 
@@ -64,7 +66,7 @@ Details of compiler setting is [compiler setting](https://ackee.xyz/wake/docs/la
 
 ### VSCode Exstension
 
-Find `Solidity (Wake)` from market place, and install it.
+Find `Solidity (Wake)` from market place, and install it.(optional)
 It supports Deploy and Interact of on-chain contract.
 And it shows static analysis results.
 
@@ -78,7 +80,9 @@ VScode extension shows detection result on your code base.
 
 The printer result stored in `.wake/`.
 
-## Testing with Wake
+![horizontal splitter](https://github.com/Ackee-Blockchain/wake-detect-action/assets/56036748/ec488c85-2f7f-4433-ae58-3d50698a47de)
+
+## 🧪 Testing with Wake
 
 We'll start by examining two key files:
 
@@ -144,10 +148,9 @@ wake init pytypes
 
 ```python
 print(tx.call_trace)
-print(tx.console_log)
 ```
 
-## Wake Testing APIs
+## 🔧 Wake Testing APIs
 
 ### Basic Wake Testing Examples
 
@@ -155,7 +158,7 @@ Check out [Wake Usage Tests](tests/test_wake_usage.py) for examples of Wake's co
 
 ### 🎯 Running Specific Tests
 
-To run a single test function instead of the entire file e.g. `test_account` unit test:
+To run a single test function instead of the entire file e.g. `test_account` unit test do this:
 
 ```bash
 wake test tests/test_wake_usage.py::test_account
@@ -184,7 +187,9 @@ Examine [wake Signing Usage Tests](tests/test_wake_usage_signing.py) for signing
    - [ ] Test deposit limits
    - [ ] Add your own test scenarios!
 
-## Fuzz test with wake
+![horizontal splitter](https://github.com/Ackee-Blockchain/wake-detect-action/assets/56036748/ec488c85-2f7f-4433-ae58-3d50698a47de)
+
+## 🎲 Fuzzing with Wake
 
 Finally, reached main part!!
 
@@ -193,6 +198,10 @@ Finally, reached main part!!
 What is manually guided fuzzing, look at the presentation
 
 ### Initial Setup
+
+Define new class derives from `FuzzTest`. The `FuzzTest` class has a `run` function, and calling this function starts the fuzz testing.
+
+In this case VaultFuzz is derives from `FuzzTest`.
 
 ```python
 VaultFuzz.run(sequences_count=1, flows_count=100)
@@ -220,7 +229,7 @@ graph TD
 
 **Key Point:**
 
-- One transaction call in one flow function
+- **One transaction call in one flow function**
 - Assert all events and behavior in the test
 
 ### Invariant
@@ -228,7 +237,7 @@ graph TD
 - Checks that all variables in the contract are the same as the variables in the Python test
 - Run all invariant functions after every flow
 
-## MGF pro tips
+## 💡 MGF pro tips
 
 How to write code and testing tips
 
@@ -259,13 +268,16 @@ This file contains internal random state of beginning of test.
 
 ### Shrinking
 
-Running shrinking. And it will show
+After you met the error in fuzzing, it is harder to find what cause this error.
+The shrinking automatically remove redundant flow executions.
+
+Running shrinking by:
 
 ```bash
 wake test tests/test_fuzz.py -SH
 ```
 
-Run shrank test by
+Run shrank test by:
 
 ```bash
 wake test tests/test_fuzz.py -SR

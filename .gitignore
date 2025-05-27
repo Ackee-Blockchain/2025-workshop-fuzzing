@@ -8,4 +8,3 @@ __pycache__/
 wake-coverage.cov
 .mypy_cache/
 .pytest_cache/
-node_modules/

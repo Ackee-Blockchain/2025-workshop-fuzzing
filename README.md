@@ -137,7 +137,7 @@ The console log messages show in the call trace.
 import "wake/console.sol";
 
 ~
-console.sol(variableName);
+console.log(variableName);
 ~
 console.logBytes32(bytes32(0));
 ```

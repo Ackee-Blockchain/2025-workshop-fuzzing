@@ -3,7 +3,7 @@
 ## 📦 Installation of Wake
 
 ```bash
-pip install eth-wake
+pip3 install -U eth-wake
 ```
 
 Check installation by running `$ wake`. It should show Wake usage.
@@ -21,6 +21,15 @@ source ~/.bashrc && foundryup
 ```
 
 Windows Users: see [Windows Installation Guide](WINDOWS_INSTALLATION.md)
+
+### VSCode Extension
+
+Recommended [Solidity Python Extension Pack](https://marketplace.visualstudio.com/items?itemName=AckeeBlockchain.solidity-python-pack).
+
+It already contains:
+
+- [Solidity (Wake)](https://marketplace.visualstudio.com/items?itemName=AckeeBlockchain.tools-for-solidity) - Remix-like UI, static analysis (detectors), general Solidity support
+- [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) - general Python support
 
 ![horizontal splitter](https://github.com/Ackee-Blockchain/wake-detect-action/assets/56036748/ec488c85-2f7f-4433-ae58-3d50698a47de)
 
@@ -63,12 +72,6 @@ remappings = []
 ```
 
 Details of compiler settings can be found in the [compiler setting documentation](https://ackee.xyz/wake/docs/latest/compilation/#include-paths).
-
-### VSCode Extension
-
-Find `Solidity (Wake)` in the marketplace and install it (optional).
-It supports deploying and interacting with on-chain contracts.
-It also shows static analysis results.
 
 ### Usage of detector and printer from Wake
 

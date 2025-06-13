@@ -4,8 +4,6 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "wake/console.sol";
-
 
 // possibly adding pause
 // possibly adding withdrawal delay
@@ -58,16 +56,10 @@ contract SingleTokenVault is Ownable {
      */
     function deposit(uint256 amount) external {
         if (amount == 0) revert ZeroAmount();
-        console.log("amount", amount);
-        console.log("minDepositAmount", minDepositAmount);
-        console.log("maxDepositAmount", maxDepositAmount);
         if (amount < minDepositAmount) revert BelowMinDeposit();
         if (amount > maxDepositAmount) revert AboveMaxDeposit();
-        console.log("amount is within limits");
-        console.logBytes32(bytes32(0));
 
         bool success = token.transferFrom(msg.sender, address(this), amount);
-        console.log("transferFrom result: ", success);
         if (!success) revert TransferFailed();
 
         _balances[msg.sender] += amount;

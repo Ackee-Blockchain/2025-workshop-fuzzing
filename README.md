@@ -171,7 +171,7 @@ graph TD
     D --> E{"flows_count<br/>reached?"}
     E -->|No| C
     E -->|Yes| F{"sequences_count<br/>reached?"}
-    F -->|No<br/>(Reset the chain state)| B
+    F -->|"No<br/>(Reset the chain state)"| B
     F -->|Yes| G["End"]
 ```
 
